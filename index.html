@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Manuals</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; display: flex; height: 100vh; }
+
+    /* Sidebar */
+    #sidebar {
+      width: 260px;
+      background: #2c3e50;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    #sidebar h2 {
+      padding: 20px;
+      font-size: 1.1rem;
+      background: #1a252f;
+      border-bottom: 1px solid #34495e;
+    }
+    #sidebar ul { list-style: none; padding: 10px 0; overflow-y: auto; }
+    #sidebar ul li a {
+      display: block;
+      padding: 12px 20px;
+      color: #ccc;
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    #sidebar ul li a:hover,
+    #sidebar ul li a.active {
+      background: #34495e;
+      color: white;
+      border-left-color: #3498db;
+    }
+
+    /* Main viewer */
+    #viewer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    #viewer iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+    }
+    #placeholder {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <nav id="sidebar">
+    <h2>📄 Manuals</h2>
+    <ul id="menu"></ul>
+  </nav>
+
+  <main id="viewer">
+    <div id="placeholder">← Select a manual from the menu</div>
+    <iframe id="pdfFrame" style="display:none"></iframe>
+  </main>
+
+  <script>
+    // ✏️ ADD YOUR PDF FILES HERE
+    const manuals = [
+      { name: "User Manual",        file: "manuals/manual1.pdf" },
+      { name: "Installation Guide", file: "manuals/manual2.pdf" },
+      { name: "Quick Start Guide",  file: "manuals/manual3.pdf" },
+    ];
+
+    const menu = document.getElementById("menu");
+    const frame = document.getElementById("pdfFrame");
+    const placeholder = document.getElementById("placeholder");
+
+    manuals.forEach(manual => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.textContent = manual.name;
+      a.href = "#";
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        document.querySelectorAll("#menu a").forEach(x => x.classList.remove("active"));
+        a.classList.add("active");
+        placeholder.style.display = "none";
+        frame.style.display = "block";
+        frame.src = manual.file;
+      });
+      li.appendChild(a);
+      menu.appendChild(li);
+    });
+  </script>
+
+</body>
+</html>
