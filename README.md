@@ -1,4 +1,4 @@
-Sekä ohjeet että .html tiedosto tehty Claude tekoälyllä
+Sekä README että .html tiedosto tehty Claude tekoälyllä
 
 # Uusien ohjeiden lisääminen sivustolle
 
