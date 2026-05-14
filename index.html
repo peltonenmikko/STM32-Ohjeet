@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>STM32 Ohjeet</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100dvh;
+      overflow: hidden;
+      background: #f0f0f0;
+    }
 
     /* ── Sidebar ── */
     #sidebar {
@@ -16,19 +23,31 @@
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      overflow-y: auto;
-    }
-    #sidebar h1 {
-      padding: 18px 16px;
-      font-size: 1rem;
-      background: #181825;
-      border-bottom: 1px solid #313244;
-      letter-spacing: 0.05em;
-      color: #cba6f7;
+      transition: transform 0.3s ease;
+      z-index: 100;
     }
 
-    /* Category */
+    #sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: #181825;
+      border-bottom: 1px solid #313244;
+      flex-shrink: 0;
+    }
+
+    #sidebar h1 {
+      font-size: 1rem;
+      letter-spacing: 0.05em;
+      color: #cba6f7;
+      flex: 1;
+    }
+
+    #menu { overflow-y: auto; flex: 1; }
+
     .category { border-bottom: 1px solid #313244; }
+
     .category-header {
       padding: 11px 16px;
       font-size: 0.78rem;
@@ -46,9 +65,9 @@
     .category-header .arrow { transition: transform 0.2s; font-size: 0.7rem; }
     .category-header.open .arrow { transform: rotate(90deg); }
 
-    /* Subcategory */
     .subcategory-list { display: none; }
     .subcategory-list.open { display: block; }
+
     .subcategory-header {
       padding: 9px 16px 9px 28px;
       font-size: 0.85rem;
@@ -63,9 +82,9 @@
     .subcategory-header .arrow { transition: transform 0.2s; font-size: 0.65rem; }
     .subcategory-header.open .arrow { transform: rotate(90deg); }
 
-    /* PDF links */
     .pdf-list { display: none; }
     .pdf-list.open { display: block; }
+
     .pdf-link {
       display: block;
       padding: 8px 16px 8px 42px;
@@ -86,8 +105,21 @@
     }
 
     /* ── Viewer ── */
-    #viewer { flex: 1; display: flex; flex-direction: column; background: #f0f0f0; }
-    #viewer iframe { flex: 1; border: none; width: 100%; height: 100%; }
+    #viewer {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-width: 0;
+    }
+
+    #viewer iframe {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
     #placeholder {
       flex: 1;
       display: flex;
@@ -99,12 +131,102 @@
     }
     #placeholder .icon { font-size: 3rem; }
     #placeholder p { font-size: 1.1rem; }
+
+    /* ── Toggle button (mobile only, inside sidebar header) ── */
+    #toggleBtn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: transparent;
+      border: 1px solid #313244;
+      color: #cba6f7;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    #toggleBtn:hover { background: #2a2a3e; }
+
+    /* ── Open button (mobile, shown on viewer when sidebar is closed) ── */
+    #openBtn {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 50;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #1e1e2e;
+      border: 1px solid #313244;
+      color: #cba6f7;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    #openBtn:hover { background: #2a2a3e; }
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+
+    /* ── Mobile styles ── */
+    @media (max-width: 700px) {
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+      #toggleBtn {
+        display: flex;
+      }
+      #openBtn {
+        display: flex;
+      }
+      #sidebar.open ~ * #openBtn,
+      body.sidebar-open #openBtn {
+        display: none;
+      }
+      #overlay.visible {
+        display: block;
+      }
+      #viewer {
+        width: 100%;
+      }
+      #placeholder p {
+        font-size: 0.95rem;
+        text-align: center;
+        padding: 0 1rem;
+      }
+    }
   </style>
 </head>
 <body>
 
+<!-- Mobile overlay -->
+<div id="overlay"></div>
+
+<!-- Open button (shown on viewer when sidebar is hidden on mobile) -->
+<button id="openBtn" aria-label="Open menu">☰</button>
+
 <nav id="sidebar">
-  <h1>📘 STM32 Ohjeet</h1>
+  <div id="sidebar-header">
+    <button id="toggleBtn" aria-label="Toggle menu">✕</button>
+    <h1>📘 STM32 Ohjeet</h1>
+  </div>
   <div id="menu"></div>
 </nav>
 
@@ -120,13 +242,6 @@
   // ─────────────────────────────────────────────
   // EDIT THIS: Add your categories, subcategories
   // and PDF files here.
-  //
-  // Format:
-  // "Category Name": {
-  //   "Subcategory Name": [
-  //     { name: "Display name", file: "path/to/file.pdf" }
-  //   ]
-  // }
   // ─────────────────────────────────────────────
   const manuals = {
     "Näytöt": {
@@ -134,23 +249,41 @@
         { name: "SSD1306 Ohje", file: "Näytöt/ssd1306-ssd1315/ssd1306_ohje.pdf" }
       ]
     },
-    // Example of more categories you might add later:
     // "Anturit": {
-    //   "Lämpötila-anturit": [
+    //   "Lämpötila": [
     //     { name: "DS18B20 Ohje", file: "Anturit/lämpötila/ds18b20_ohje.pdf" }
-    //   ]
-    // },
-    // "Kommunikaatio": {
-    //   "UART": [
-    //     { name: "UART Ohje", file: "Kommunikaatio/uart/uart_ohje.pdf" }
     //   ]
     // }
   };
   // ─────────────────────────────────────────────
 
-  const menu = document.getElementById("menu");
-  const frame = document.getElementById("pdfFrame");
-  const placeholder = document.getElementById("placeholder");
+  const menu       = document.getElementById("menu");
+  const frame      = document.getElementById("pdfFrame");
+  const placeholder= document.getElementById("placeholder");
+  const sidebar    = document.getElementById("sidebar");
+  const overlay    = document.getElementById("overlay");
+  const toggleBtn  = document.getElementById("toggleBtn");
+  const openBtn    = document.getElementById("openBtn");
+
+  const isMobile = () => window.innerWidth <= 700;
+
+  function openSidebar() {
+    sidebar.classList.add("open");
+    overlay.classList.add("visible");
+    document.body.classList.add("sidebar-open");
+    openBtn.style.display = "none";
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("visible");
+    document.body.classList.remove("sidebar-open");
+    if (isMobile()) openBtn.style.display = "flex";
+  }
+
+  toggleBtn.addEventListener("click", closeSidebar);
+  openBtn.addEventListener("click", openSidebar);
+  overlay.addEventListener("click", closeSidebar);
 
   function openPdf(filePath, linkEl) {
     document.querySelectorAll(".pdf-link").forEach(el => el.classList.remove("active"));
@@ -158,6 +291,7 @@
     placeholder.style.display = "none";
     frame.style.display = "block";
     frame.src = filePath;
+    if (isMobile()) closeSidebar();
   }
 
   function toggleOpen(headerEl, listEl) {
@@ -197,7 +331,6 @@
         link.addEventListener("click", e => {
           e.preventDefault();
           openPdf(pdf.file, link);
-          // Auto-expand parents
           subcatList.classList.add("open");
           catHeader.classList.add("open");
           pdfList.classList.add("open");
