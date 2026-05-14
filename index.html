@@ -3,104 +3,218 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Product Manuals</title>
+  <title>STM32 Ohjeet</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; display: flex; height: 100vh; }
+    body { font-family: Arial, sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
-    /* Sidebar */
+    /* ── Sidebar ── */
     #sidebar {
-      width: 260px;
-      background: #2c3e50;
-      color: white;
+      width: 280px;
+      background: #1e1e2e;
+      color: #cdd6f4;
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
+      overflow-y: auto;
     }
-    #sidebar h2 {
-      padding: 20px;
-      font-size: 1.1rem;
-      background: #1a252f;
-      border-bottom: 1px solid #34495e;
-    }
-    #sidebar ul { list-style: none; padding: 10px 0; overflow-y: auto; }
-    #sidebar ul li a {
-      display: block;
-      padding: 12px 20px;
-      color: #ccc;
-      text-decoration: none;
-      border-left: 3px solid transparent;
-      transition: all 0.2s;
-    }
-    #sidebar ul li a:hover,
-    #sidebar ul li a.active {
-      background: #34495e;
-      color: white;
-      border-left-color: #3498db;
+    #sidebar h1 {
+      padding: 18px 16px;
+      font-size: 1rem;
+      background: #181825;
+      border-bottom: 1px solid #313244;
+      letter-spacing: 0.05em;
+      color: #cba6f7;
     }
 
-    /* Main viewer */
-    #viewer {
-      flex: 1;
+    /* Category */
+    .category { border-bottom: 1px solid #313244; }
+    .category-header {
+      padding: 11px 16px;
+      font-size: 0.78rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a6adc8;
+      cursor: pointer;
       display: flex;
-      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
     }
-    #viewer iframe {
-      flex: 1;
-      border: none;
-      width: 100%;
+    .category-header:hover { background: #2a2a3e; }
+    .category-header .arrow { transition: transform 0.2s; font-size: 0.7rem; }
+    .category-header.open .arrow { transform: rotate(90deg); }
+
+    /* Subcategory */
+    .subcategory-list { display: none; }
+    .subcategory-list.open { display: block; }
+    .subcategory-header {
+      padding: 9px 16px 9px 28px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #bac2de;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
     }
+    .subcategory-header:hover { background: #2a2a3e; }
+    .subcategory-header .arrow { transition: transform 0.2s; font-size: 0.65rem; }
+    .subcategory-header.open .arrow { transform: rotate(90deg); }
+
+    /* PDF links */
+    .pdf-list { display: none; }
+    .pdf-list.open { display: block; }
+    .pdf-link {
+      display: block;
+      padding: 8px 16px 8px 42px;
+      font-size: 0.82rem;
+      color: #89b4fa;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pdf-link:hover { background: #313244; color: #cdd6f4; }
+    .pdf-link.active {
+      background: #313244;
+      border-left-color: #cba6f7;
+      color: #cdd6f4;
+    }
+
+    /* ── Viewer ── */
+    #viewer { flex: 1; display: flex; flex-direction: column; background: #f0f0f0; }
+    #viewer iframe { flex: 1; border: none; width: 100%; height: 100%; }
     #placeholder {
       flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       color: #888;
-      font-size: 1.2rem;
+      gap: 12px;
     }
+    #placeholder .icon { font-size: 3rem; }
+    #placeholder p { font-size: 1.1rem; }
   </style>
 </head>
 <body>
 
-  <nav id="sidebar">
-    <h2>📄 Manuals</h2>
-    <ul id="menu"></ul>
-  </nav>
+<nav id="sidebar">
+  <h1>📘 STM32 Ohjeet</h1>
+  <div id="menu"></div>
+</nav>
 
-  <main id="viewer">
-    <div id="placeholder">← Select a manual from the menu</div>
-    <iframe id="pdfFrame" style="display:none"></iframe>
-  </main>
+<main id="viewer">
+  <div id="placeholder">
+    <div class="icon">📄</div>
+    <p>Valitse ohje vasemmalta valikosta</p>
+  </div>
+  <iframe id="pdfFrame" style="display:none"></iframe>
+</main>
 
-  <script>
-    // ✏️ ADD YOUR PDF FILES HERE
-    const manuals = [
-      { name: "User Manual",        file: "manuals/manual1.pdf" },
-      { name: "Installation Guide", file: "manuals/manual2.pdf" },
-      { name: "Quick Start Guide",  file: "manuals/manual3.pdf" },
-    ];
+<script>
+  // ─────────────────────────────────────────────
+  // EDIT THIS: Add your categories, subcategories
+  // and PDF files here.
+  //
+  // Format:
+  // "Category Name": {
+  //   "Subcategory Name": [
+  //     { name: "Display name", file: "path/to/file.pdf" }
+  //   ]
+  // }
+  // ─────────────────────────────────────────────
+  const manuals = {
+    "Näytöt": {
+      "SSD1306 / SSD1315": [
+        { name: "SSD1306 Ohje", file: "Näytöt/ssd1306-ssd1315/ssd1306_ohje.pdf" }
+      ]
+    },
+    // Example of more categories you might add later:
+    // "Anturit": {
+    //   "Lämpötila-anturit": [
+    //     { name: "DS18B20 Ohje", file: "Anturit/lämpötila/ds18b20_ohje.pdf" }
+    //   ]
+    // },
+    // "Kommunikaatio": {
+    //   "UART": [
+    //     { name: "UART Ohje", file: "Kommunikaatio/uart/uart_ohje.pdf" }
+    //   ]
+    // }
+  };
+  // ─────────────────────────────────────────────
 
-    const menu = document.getElementById("menu");
-    const frame = document.getElementById("pdfFrame");
-    const placeholder = document.getElementById("placeholder");
+  const menu = document.getElementById("menu");
+  const frame = document.getElementById("pdfFrame");
+  const placeholder = document.getElementById("placeholder");
 
-    manuals.forEach(manual => {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.textContent = manual.name;
-      a.href = "#";
-      a.addEventListener("click", e => {
-        e.preventDefault();
-        document.querySelectorAll("#menu a").forEach(x => x.classList.remove("active"));
-        a.classList.add("active");
-        placeholder.style.display = "none";
-        frame.style.display = "block";
-        frame.src = manual.file;
+  function openPdf(filePath, linkEl) {
+    document.querySelectorAll(".pdf-link").forEach(el => el.classList.remove("active"));
+    linkEl.classList.add("active");
+    placeholder.style.display = "none";
+    frame.style.display = "block";
+    frame.src = filePath;
+  }
+
+  function toggleOpen(headerEl, listEl) {
+    const isOpen = listEl.classList.toggle("open");
+    headerEl.classList.toggle("open", isOpen);
+  }
+
+  Object.entries(manuals).forEach(([catName, subcats]) => {
+    const catDiv = document.createElement("div");
+    catDiv.className = "category";
+
+    const catHeader = document.createElement("div");
+    catHeader.className = "category-header";
+    catHeader.innerHTML = `<span>${catName}</span><span class="arrow">▶</span>`;
+
+    const subcatList = document.createElement("div");
+    subcatList.className = "subcategory-list";
+
+    catHeader.addEventListener("click", () => toggleOpen(catHeader, subcatList));
+
+    Object.entries(subcats).forEach(([subcatName, pdfs]) => {
+      const subcatHeader = document.createElement("div");
+      subcatHeader.className = "subcategory-header";
+      subcatHeader.innerHTML = `<span>${subcatName}</span><span class="arrow">▶</span>`;
+
+      const pdfList = document.createElement("div");
+      pdfList.className = "pdf-list";
+
+      subcatHeader.addEventListener("click", () => toggleOpen(subcatHeader, pdfList));
+
+      pdfs.forEach(pdf => {
+        const link = document.createElement("a");
+        link.className = "pdf-link";
+        link.textContent = pdf.name;
+        link.href = "#";
+        link.title = pdf.name;
+        link.addEventListener("click", e => {
+          e.preventDefault();
+          openPdf(pdf.file, link);
+          // Auto-expand parents
+          subcatList.classList.add("open");
+          catHeader.classList.add("open");
+          pdfList.classList.add("open");
+          subcatHeader.classList.add("open");
+        });
+        pdfList.appendChild(link);
       });
-      li.appendChild(a);
-      menu.appendChild(li);
+
+      subcatList.appendChild(subcatHeader);
+      subcatList.appendChild(pdfList);
     });
-  </script>
+
+    catDiv.appendChild(catHeader);
+    catDiv.appendChild(subcatList);
+    menu.appendChild(catDiv);
+  });
+</script>
 
 </body>
 </html>
