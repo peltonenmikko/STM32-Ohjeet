@@ -3,184 +3,477 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <title>STM32 Ohjeet</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --st-blue:       #03318C;
+      --st-blue-mid:   #0047BB;
+      --st-blue-light: #0066CC;
+      --st-accent:     #00ADEF;
+      --st-white:      #FFFFFF;
+      --st-bg:         #F4F7FC;
+      --st-border:     #D0DCF0;
+      --st-text:       #1A1A2E;
+      --st-muted:      #6B7A99;
+      --sidebar-w:     260px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Barlow', sans-serif;
+      background: var(--st-bg);
+      color: var(--st-text);
       display: flex;
       height: 100dvh;
       overflow: hidden;
-      background: #f0f0f0;
     }
 
-    /* ── Sidebar ── */
+    /* ═══════════════════════════════════
+       SIDEBAR
+    ═══════════════════════════════════ */
+
     #sidebar {
-      width: 280px;
-      background: #1e1e2e;
-      color: #cdd6f4;
+      width: var(--sidebar-w);
+      background: var(--st-blue);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
       transition: transform 0.3s ease;
       z-index: 100;
+      overflow: hidden;
     }
 
-    #sidebar-header {
+    #sidebar-logo {
+      padding: 18px 16px;
+      background: #021f5c;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 16px;
-      background: #181825;
-      border-bottom: 1px solid #313244;
       flex-shrink: 0;
     }
 
-    #sidebar h1 {
+    #close-btn {
+      display: none;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
       font-size: 1rem;
-      letter-spacing: 0.05em;
-      color: #cba6f7;
-      flex: 1;
-    }
-
-    #menu { overflow-y: auto; flex: 1; }
-
-    .category { border-bottom: 1px solid #313244; }
-
-    .category-header {
-      padding: 11px 16px;
-      font-size: 0.78rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #a6adc8;
       cursor: pointer;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      user-select: none;
-    }
-    .category-header:hover { background: #2a2a3e; }
-    .category-header .arrow { transition: transform 0.2s; font-size: 0.7rem; }
-    .category-header.open .arrow { transform: rotate(90deg); }
-
-    .subcategory-list { display: none; }
-    .subcategory-list.open { display: block; }
-
-    .subcategory-header {
-      padding: 9px 16px 9px 28px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: #bac2de;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-    }
-    .subcategory-header:hover { background: #2a2a3e; }
-    .subcategory-header .arrow { transition: transform 0.2s; font-size: 0.65rem; }
-    .subcategory-header.open .arrow { transform: rotate(90deg); }
-
-    .pdf-list { display: none; }
-    .pdf-list.open { display: block; }
-
-    .pdf-link {
-      display: block;
-      padding: 8px 16px 8px 42px;
-      font-size: 0.82rem;
-      color: #89b4fa;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .pdf-link:hover { background: #313244; color: #cdd6f4; }
-    .pdf-link.active {
-      background: #313244;
-      border-left-color: #cba6f7;
-      color: #cdd6f4;
+      justify-content: center;
+      flex-shrink: 0;
     }
 
-    /* ── Viewer ── */
-    #viewer {
-      flex: 1;
+    #close-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .logo-text {
       display: flex;
       flex-direction: column;
-      position: relative;
-      min-width: 0;
+      line-height: 1.15;
     }
 
-    #viewer iframe {
+    .logo-top {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .logo-sub {
+      font-size: 0.65rem;
+      color: var(--st-accent);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    #sidebar-nav {
+      overflow-y: auto;
       flex: 1;
-      border: none;
+      padding: 10px 0 16px;
+    }
+
+    .nav-section-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding: 14px 16px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 16px;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 0.87rem;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(0,173,239,0.14);
+      border-left-color: var(--st-accent);
+      color: white;
+    }
+
+    .nav-icon {
+      font-size: 0.95rem;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* GITHUB BUTTON */
+
+    #sidebar-footer {
+      padding: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: #021f5c;
+      flex-shrink: 0;
+    }
+
+    #github-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      width: 100%;
+      padding: 10px 12px;
+
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+
+      color: white;
+      text-decoration: none;
+
+      font-size: 0.9rem;
+      font-weight: 600;
+
+      transition:
+        background 0.15s,
+        transform 0.15s,
+        border-color 0.15s;
+    }
+
+    #github-btn:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.25);
+      transform: translateY(-1px);
+    }
+
+    .github-icon {
+      width: 18px;
+      height: 18px;
+      display: flex;
+    }
+
+    .github-icon svg {
       width: 100%;
       height: 100%;
     }
 
-    #placeholder {
+    /* ═══════════════════════════════════
+       MAIN
+    ═══════════════════════════════════ */
+
+    #main {
       flex: 1;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #888;
-      gap: 12px;
+      overflow: hidden;
+      min-width: 0;
     }
-    #placeholder .icon { font-size: 3rem; }
-    #placeholder p { font-size: 1.1rem; }
 
-    /* ── Toggle button (mobile only, inside sidebar header) ── */
-    #toggleBtn {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background: transparent;
-      border: 1px solid #313244;
-      color: #cba6f7;
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: none;
+    #topbar {
+      background: white;
+      border-bottom: 2px solid var(--st-border);
+      padding: 0 20px;
+      height: 54px;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      line-height: 1;
+      gap: 10px;
       flex-shrink: 0;
     }
-    #toggleBtn:hover { background: #2a2a3e; }
 
-    /* ── Open button (mobile, shown on viewer when sidebar is closed) ── */
-    #openBtn {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 50;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: #1e1e2e;
-      border: 1px solid #313244;
-      color: #cba6f7;
-      font-size: 1.2rem;
-      cursor: pointer;
+    #open-btn {
       display: none;
+      background: var(--st-blue);
+      border: none;
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
       align-items: center;
       justify-content: center;
-      line-height: 1;
+      flex-shrink: 0;
     }
-    #openBtn:hover { background: #2a2a3e; }
+
+    #open-btn:hover {
+      background: var(--st-blue-mid);
+    }
+
+    #page-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--st-blue);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      flex: 1;
+    }
+
+    #back-btn {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: 1px solid var(--st-border);
+      color: var(--st-blue-light);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #back-btn:hover {
+      background: var(--st-bg);
+    }
+
+    /* CONTENT */
+
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 24px 40px;
+    }
+
+    #pdf-view {
+      display: none;
+      flex: 1;
+    }
+
+    #pdf-view iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* CATEGORY */
+
+    .category-block {
+      margin-bottom: 44px;
+    }
+
+    .category-heading {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--st-blue);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--st-blue);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .category-heading::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 22px;
+      background: var(--st-accent);
+      border-radius: 2px;
+    }
+
+    .section-block {
+      margin-bottom: 32px;
+    }
+
+    .section-heading {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--st-blue-light);
+      padding: 5px 10px;
+      border-left: 3px solid var(--st-accent);
+      background: white;
+      margin-bottom: 14px;
+      display: inline-block;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .manual-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    /* MANUAL CARD */
+
+    .manual-card {
+      background: white;
+      border: 1px solid var(--st-border);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition:
+        transform 0.15s,
+        box-shadow 0.15s,
+        border-color 0.15s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .manual-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(3,49,140,0.13);
+      border-color: var(--st-accent);
+    }
+
+    .card-cover {
+      aspect-ratio: 3/4;
+      position: relative;
+      overflow: hidden;
+      background: #0b1f4d;
+    }
+
+    .cover-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .cover-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .cover-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(0,0,0,0.45),
+        rgba(0,0,0,0.05)
+      );
+    }
+
+    .cover-st-badge {
+      position: relative;
+      z-index: 2;
+      align-self: flex-start;
+      margin: 8px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: white;
+      padding: 2px 5px;
+      letter-spacing: 0.06em;
+    }
+
+    .cover-pdf-label {
+      position: relative;
+      z-index: 2;
+      align-self: center;
+      margin-bottom: 8px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .card-info {
+      padding: 9px 10px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .card-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--st-text);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-date {
+      font-size: 0.66rem;
+      color: var(--st-muted);
+    }
+
+    /* OVERLAY */
+
     #overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(2,31,92,0.5);
       z-index: 99;
+      backdrop-filter: blur(1px);
     }
 
-    /* ── Mobile styles ── */
+    #overlay.visible {
+      display: block;
+    }
+
+    /* RESPONSIVE */
+
     @media (max-width: 700px) {
+
       #sidebar {
         position: fixed;
         top: 0;
@@ -188,166 +481,394 @@
         height: 100%;
         transform: translateX(-100%);
       }
+
       #sidebar.open {
         transform: translateX(0);
       }
-      #toggleBtn {
+
+      #close-btn {
         display: flex;
       }
-      #openBtn {
+
+      #open-btn {
         display: flex;
       }
-      #sidebar.open ~ * #openBtn,
-      body.sidebar-open #openBtn {
-        display: none;
+
+      #content {
+        padding: 14px 12px 32px;
       }
-      #overlay.visible {
-        display: block;
+
+      .manual-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
       }
-      #viewer {
-        width: 100%;
-      }
-      #placeholder p {
-        font-size: 0.95rem;
-        text-align: center;
-        padding: 0 1rem;
+
+      .card-info {
+        padding: 7px 8px 9px;
       }
     }
+
+    @media (min-width: 701px) and (max-width: 1100px) {
+      .manual-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (min-width: 1101px) {
+      .manual-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
   </style>
 </head>
+
 <body>
 
-<!-- Mobile overlay -->
 <div id="overlay"></div>
 
-<!-- Open button (shown on viewer when sidebar is hidden on mobile) -->
-<button id="openBtn" aria-label="Open menu">☰</button>
-
 <nav id="sidebar">
-  <div id="sidebar-header">
-    <button id="toggleBtn" aria-label="Toggle menu">✕</button>
-    <h1>📘 STM32 Ohjeet</h1>
+
+  <div id="sidebar-logo">
+
+    <button id="close-btn" aria-label="Sulje">✕</button>
+
+    <div class="logo-text">
+      <span class="logo-top">STM32</span>
+      <span class="logo-sub">Ohjeet</span>
+    </div>
+
   </div>
-  <div id="menu"></div>
+
+  <div id="sidebar-nav">
+
+    <div class="nav-item active" data-view="all" id="nav-all">
+      <span class="nav-icon">📋</span>
+      Kaikki ohjeet
+    </div>
+
+    <div class="nav-section-label" id="cat-label" style="display:none">
+      Kategoriat
+    </div>
+
+    <div id="cat-nav"></div>
+
+  </div>
+
+  <div id="sidebar-footer">
+
+    <a
+      href="https://github.com/peltonenmikko"
+      target="_blank"
+      rel="noopener noreferrer"
+      id="github-btn"
+    >
+
+      <span class="github-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12C0 17.3 3.44 21.8 8.21 23.39C8.81 23.5 9.03 23.13 9.03 22.82C9.03 22.54 9.02 21.78 9.01 20.77C5.67 21.5 4.97 19.16 4.97 19.16C4.42 17.77 3.63 17.4 3.63 17.4C2.55 16.66 3.71 16.67 3.71 16.67C4.9 16.75 5.53 17.89 5.53 17.89C6.59 19.7 8.31 19.18 9 18.88C9.11 18.11 9.41 17.58 9.74 17.28C7.08 16.98 4.29 15.95 4.29 11.38C4.29 10.08 4.75 9.02 5.52 8.19C5.4 7.89 5 6.67 5.63 5.02C5.63 5.02 6.64 4.7 8.94 6.26C9.91 5.99 10.95 5.86 12 5.86C13.05 5.86 14.09 5.99 15.06 6.26C17.36 4.7 18.37 5.02 18.37 5.02C19 6.67 18.6 7.89 18.48 8.19C19.25 9.02 19.71 10.08 19.71 11.38C19.71 15.96 16.91 16.98 14.24 17.28C14.66 17.65 15.03 18.39 15.03 19.52C15.03 21.13 15.01 22.43 15.01 22.82C15.01 23.13 15.23 23.51 15.84 23.39C20.61 21.8 24 17.3 24 12C24 5.37 18.63 0 12 0Z"/>
+        </svg>
+      </span>
+
+      <span>GitHub</span>
+
+    </a>
+
+  </div>
+
 </nav>
 
-<main id="viewer">
-  <div id="placeholder">
-    <div class="icon">📄</div>
-    <p>Valitse ohje vasemmalta valikosta</p>
+<div id="main">
+
+  <div id="topbar">
+
+    <button id="open-btn" aria-label="Avaa valikko">☰</button>
+
+    <span id="page-title">Kaikki ohjeet</span>
+
+    <button id="back-btn" onclick="closePdf()">
+      ← Takaisin
+    </button>
+
   </div>
-  <iframe id="pdfFrame" style="display:none"></iframe>
-</main>
+
+  <div id="content"></div>
+
+  <div id="pdf-view">
+    <iframe id="pdf-frame"></iframe>
+  </div>
+
+</div>
 
 <script>
-  // ─────────────────────────────────────────────
-  // EDIT THIS: Add your categories, subcategories
-  // and PDF files here.
-  // ─────────────────────────────────────────────
+
   const manuals = {
     "Näytöt": {
       "SSD1306 / SSD1315": [
-        { name: "SSD1306 Ohje", file: "Näytöt/ssd1306-ssd1315/ssd1306_ohje.pdf" }
+        {
+          name: "SSD1306 Ohje",
+          file: "Näytöt/ssd1306-ssd1315/ssd1306_ohje.pdf",
+          cover: "Näytöt/ssd1306-ssd1315/ssd1306_cover.jpg",
+          date: "2026-05-15",
+          zip: "Näytöt/ssd1306-ssd1315/ssd1306_libraries.zip",
+        }
       ]
-    },
-    // "Anturit": {
-    //   "Lämpötila": [
-    //     { name: "DS18B20 Ohje", file: "Anturit/lämpötila/ds18b20_ohje.pdf" }
-    //   ]
-    // }
+    }
   };
-  // ─────────────────────────────────────────────
 
-  const menu       = document.getElementById("menu");
-  const frame      = document.getElementById("pdfFrame");
-  const placeholder= document.getElementById("placeholder");
-  const sidebar    = document.getElementById("sidebar");
-  const overlay    = document.getElementById("overlay");
-  const toggleBtn  = document.getElementById("toggleBtn");
-  const openBtn    = document.getElementById("openBtn");
+  const content   = document.getElementById("content");
+  const pdfView   = document.getElementById("pdf-view");
+  const pdfFrame  = document.getElementById("pdf-frame");
+  const pageTitle = document.getElementById("page-title");
+  const backBtn   = document.getElementById("back-btn");
+  const catNav    = document.getElementById("cat-nav");
+  const catLabel  = document.getElementById("cat-label");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const openBtn   = document.getElementById("open-btn");
+  const closeBtn  = document.getElementById("close-btn");
 
   const isMobile = () => window.innerWidth <= 700;
 
   function openSidebar() {
     sidebar.classList.add("open");
     overlay.classList.add("visible");
-    document.body.classList.add("sidebar-open");
-    openBtn.style.display = "none";
   }
 
   function closeSidebar() {
     sidebar.classList.remove("open");
     overlay.classList.remove("visible");
-    document.body.classList.remove("sidebar-open");
-    if (isMobile()) openBtn.style.display = "flex";
   }
 
-  toggleBtn.addEventListener("click", closeSidebar);
   openBtn.addEventListener("click", openSidebar);
+  closeBtn.addEventListener("click", closeSidebar);
   overlay.addEventListener("click", closeSidebar);
 
-  function openPdf(filePath, linkEl) {
-    document.querySelectorAll(".pdf-link").forEach(el => el.classList.remove("active"));
-    linkEl.classList.add("active");
-    placeholder.style.display = "none";
-    frame.style.display = "block";
-    frame.src = filePath;
-    if (isMobile()) closeSidebar();
+  function fmtDate(iso) {
+    if (!iso) return "";
+    return new Date(iso).toLocaleDateString("fi-FI");
   }
 
-  function toggleOpen(headerEl, listEl) {
-    const isOpen = listEl.classList.toggle("open");
-    headerEl.classList.toggle("open", isOpen);
+  function makeCard(manual) {
+
+    const card = document.createElement("div");
+    card.className = "manual-card";
+
+    card.innerHTML = `
+      <div class="card-cover">
+
+        <img
+          src="${manual.cover}"
+          alt="${manual.name}"
+          class="cover-image"
+        >
+
+        <div class="cover-overlay">
+
+          <div class="cover-st-badge">
+            STM32
+          </div>
+
+          <div class="cover-pdf-label">
+            PDF
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="card-info">
+
+        <div class="card-name">
+          ${manual.name}
+        </div>
+
+        ${manual.date
+          ? `<div class="card-date">Päivitetty ${fmtDate(manual.date)}</div>`
+          : ""
+        }
+        
+        ${manual.zip ? `
+		  <a href="${manual.zip}"
+			 download
+			 onclick="event.stopPropagation()"
+			 style="
+			   margin-top:6px;
+			   display:inline-block;
+			   padding:6px 10px;
+			   background:var(--st-blue);
+			   color:white;
+			   font-size:0.7rem;
+			   font-weight:600;
+			   border-radius:6px;
+			   text-decoration:none;
+			 ">
+			Lataa kirjastot
+		  </a>
+		` : ""}
+
+      </div>
+    `;
+
+    card.addEventListener("click", () => openPdf(manual));
+
+    return card;
   }
 
-  Object.entries(manuals).forEach(([catName, subcats]) => {
-    const catDiv = document.createElement("div");
-    catDiv.className = "category";
+  function renderSection(subcatName, pdfs) {
 
-    const catHeader = document.createElement("div");
-    catHeader.className = "category-header";
-    catHeader.innerHTML = `<span>${catName}</span><span class="arrow">▶</span>`;
+    const block = document.createElement("div");
+    block.className = "section-block";
 
-    const subcatList = document.createElement("div");
-    subcatList.className = "subcategory-list";
+    const heading = document.createElement("div");
+    heading.className = "section-heading";
+    heading.textContent = subcatName;
 
-    catHeader.addEventListener("click", () => toggleOpen(catHeader, subcatList));
+    const grid = document.createElement("div");
+    grid.className = "manual-grid";
 
-    Object.entries(subcats).forEach(([subcatName, pdfs]) => {
-      const subcatHeader = document.createElement("div");
-      subcatHeader.className = "subcategory-header";
-      subcatHeader.innerHTML = `<span>${subcatName}</span><span class="arrow">▶</span>`;
-
-      const pdfList = document.createElement("div");
-      pdfList.className = "pdf-list";
-
-      subcatHeader.addEventListener("click", () => toggleOpen(subcatHeader, pdfList));
-
-      pdfs.forEach(pdf => {
-        const link = document.createElement("a");
-        link.className = "pdf-link";
-        link.textContent = pdf.name;
-        link.href = "#";
-        link.title = pdf.name;
-        link.addEventListener("click", e => {
-          e.preventDefault();
-          openPdf(pdf.file, link);
-          subcatList.classList.add("open");
-          catHeader.classList.add("open");
-          pdfList.classList.add("open");
-          subcatHeader.classList.add("open");
-        });
-        pdfList.appendChild(link);
-      });
-
-      subcatList.appendChild(subcatHeader);
-      subcatList.appendChild(pdfList);
+    pdfs.forEach(m => {
+      grid.appendChild(makeCard(m));
     });
 
-    catDiv.appendChild(catHeader);
-    catDiv.appendChild(subcatList);
-    menu.appendChild(catDiv);
+    block.appendChild(heading);
+    block.appendChild(grid);
+
+    return block;
+  }
+
+  function showView(viewId, navEl) {
+
+    document
+      .querySelectorAll(".nav-item")
+      .forEach(el => el.classList.remove("active"));
+
+    if (navEl) navEl.classList.add("active");
+
+    closePdf(false);
+
+    content.style.display = "block";
+    content.innerHTML = "";
+
+    if (viewId === "all") {
+
+      pageTitle.textContent = "Kaikki ohjeet";
+
+      Object.entries(manuals).forEach(([catName, subcats]) => {
+
+        const catBlock = document.createElement("div");
+        catBlock.className = "category-block";
+
+        const catHeading = document.createElement("div");
+        catHeading.className = "category-heading";
+        catHeading.textContent = catName;
+
+        catBlock.appendChild(catHeading);
+
+        Object.entries(subcats).forEach(([subcatName, pdfs]) => {
+          catBlock.appendChild(
+            renderSection(subcatName, pdfs)
+          );
+        });
+
+        content.appendChild(catBlock);
+      });
+
+    } else {
+
+      pageTitle.textContent = viewId;
+
+      const subcats = manuals[viewId];
+
+      if (subcats) {
+
+        Object.entries(subcats).forEach(([subcatName, pdfs]) => {
+
+          content.appendChild(
+            renderSection(subcatName, pdfs)
+          );
+
+        });
+
+      }
+
+    }
+
+    if (isMobile()) {
+      closeSidebar();
+    }
+  }
+
+  function openPdf(manual) {
+
+    content.style.display = "none";
+    pdfView.style.display = "block";
+
+    pdfFrame.src = manual.file;
+
+    pageTitle.textContent = manual.name;
+
+    backBtn.style.display = "flex";
+  }
+
+  function closePdf(restore = true) {
+
+    pdfView.style.display = "none";
+    pdfFrame.src = "";
+
+    backBtn.style.display = "none";
+
+    if (restore) {
+      content.style.display = "block";
+    }
+  }
+
+  const catIcons = {
+    "Näytöt": "🖥️",
+    "Anturit": "🌡️",
+    "Kommunikaatio": "📡",
+    "Moottorit": "⚙️"
+  };
+
+  const catKeys = Object.keys(manuals);
+
+  if (catKeys.length > 0) {
+    catLabel.style.display = "block";
+  }
+
+  catKeys.forEach(catName => {
+
+    const icon = catIcons[catName] || "📁";
+
+    const item = document.createElement("div");
+
+    item.className = "nav-item";
+    item.dataset.view = catName;
+
+    item.innerHTML = `
+      <span class="nav-icon">${icon}</span>
+      ${catName}
+    `;
+
+    item.addEventListener("click", () => {
+      showView(catName, item);
+    });
+
+    catNav.appendChild(item);
+
   });
+
+  document
+    .getElementById("nav-all")
+    .addEventListener("click", function() {
+      showView("all", this);
+    });
+
+  showView(
+    "all",
+    document.getElementById("nav-all")
+  );
+
 </script>
 
 </body>
